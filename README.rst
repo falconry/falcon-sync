@@ -11,6 +11,6 @@ dependency in question only supports ``async``, or conversely, does not support
 it at all).
 
 .. warning::
-   This project is in the early stages of development.
+    This project is in the early stages of development.
 
-   There is not *that* much to see here (yet).
+    There is not *that* much to see here (yet).
