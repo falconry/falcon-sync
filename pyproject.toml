@@ -8,7 +8,9 @@ requires = [
 name = "falcon-sync"
 readme = "README.rst"
 dynamic = ["version"]
-dependencies = []
+dependencies = [
+  "falcon >= 3.1.0",
+]
 requires-python = ">=3.8"
 description = "."
 authors = [
@@ -36,7 +38,6 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Cython",
 ]
 keywords = [
     "asgi",
