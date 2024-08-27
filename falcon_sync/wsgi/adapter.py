@@ -17,6 +17,8 @@ import functools
 import inspect
 import threading
 
+from falcon_sync.wsgi import request
+
 
 class Adapter:
     def __init__(self):
@@ -53,7 +55,8 @@ class Adapter:
     def wrap_falcon_func(self, func):
         @functools.wraps(func)
         def sync_wrapper(req, resp, *args, **kwargs):
-            coro = func(req, resp, *args, **kwargs)
+            asgi_req = request.RequestProxy(req, self)
+            coro = func(asgi_req, resp, *args, **kwargs)
             return self._call(coro)
 
         return sync_wrapper
