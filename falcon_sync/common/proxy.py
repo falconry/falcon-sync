@@ -38,8 +38,6 @@ class ProxyMeta(type):
         (base_cls,) = bases
         base_name = f'_{base_cls.__name__.lower()}'
 
-        print((cls, proxy_cls, name, base_cls.__name__, dct))
-
         for attr, member in inspect.getmembers(proxy_cls):
             if attr.startswith('_'):
                 continue

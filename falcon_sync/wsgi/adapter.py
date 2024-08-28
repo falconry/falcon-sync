@@ -17,11 +17,14 @@ import functools
 import inspect
 import threading
 
-from falcon_sync.wsgi import request
+from falcon_sync.common.adapter import BaseAdapter
+from falcon_sync.wsgi.request import RequestProxy
+from falcon_sync.wsgi.response import ResponseProxy
 
 
-class Adapter:
-    def __init__(self):
+class Adapter(BaseAdapter):
+    def __init__(self, executor=None):
+        super().__init__(executor=executor)
         self._loop = None
         self._thread = None
 
@@ -48,16 +51,27 @@ class Adapter:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.join()
 
-    def _call(self, coro):
+    def run_sync(self, coro):
         future = asyncio.run_coroutine_threadsafe(coro, self._loop)
         return future.result()
+
+    def wrap_async_gen(self, gen):
+        def wrapped():
+            try:
+                while True:
+                    yield self.run_sync(gen.__anext__())
+            except StopAsyncIteration:
+                pass
+
+        return wrapped()
 
     def wrap_falcon_func(self, func):
         @functools.wraps(func)
         def sync_wrapper(req, resp, *args, **kwargs):
-            asgi_req = request.RequestProxy(req, self)
-            coro = func(asgi_req, resp, *args, **kwargs)
-            return self._call(coro)
+            asgi_req = RequestProxy(req, self)
+            asgi_resp = ResponseProxy(resp, self)
+            coro = func(asgi_req, asgi_resp, *args, **kwargs)
+            return self.run_sync(coro)
 
         return sync_wrapper
 

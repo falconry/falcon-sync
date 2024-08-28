@@ -18,12 +18,12 @@ def test_request_attributes():
     )
 
     with adapter.Adapter() as sync_adapter:
-        asgi_req = request.RequestProxy(req, adapter)
+        asgi_req = request.RequestProxy(req, sync_adapter)
 
         assert asgi_req.method == 'POST'
         assert asgi_req.path == '/items'
         assert asgi_req.content_type == 'application/json'
         assert asgi_req.content_length == 19
 
-        media = sync_adapter._call(asgi_req.get_media())
+        media = sync_adapter.run_sync(asgi_req.get_media())
         assert media == {'color': 'orange'}

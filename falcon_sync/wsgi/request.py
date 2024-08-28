@@ -1,5 +1,3 @@
-import asyncio
-
 import falcon.asgi
 
 from falcon_sync.common import proxy
@@ -30,9 +28,8 @@ class RequestProxy(falcon.asgi.Request, metaclass=proxy.ProxyMeta):
         if self._disconnected:
             return {'type': 'http.disconnect'}
 
-        loop = asyncio.get_running_loop()
-        body = await loop.run_in_executor(
-            None, self._request.bounded_stream.read, self._CHUNK_SIZE
+        body = await self._adapter.run_in_executor(
+            self._request.bounded_stream.read, self._CHUNK_SIZE
         )
 
         if len(body) == self._CHUNK_SIZE:
